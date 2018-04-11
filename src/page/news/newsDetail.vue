@@ -43,142 +43,142 @@
   </div>
 </template>
 <script>
-    import md from "@/util/markdown.js";
-    import CommentItem from "@/page/article/ArticleComment.vue";
-    export default {
-        name: "news-detail",
-        components: {
-            CommentItem
-        },
-        data() {
-            return {
-                oldID: 0,
-                news: {},
-                loading: true,
-                fetching: false,
-                org:'',
-                share:0,
-                comments: [],
-                pinnedCom: [],
+  import md from "@/util/markdown.js";
+  import CommentItem from "@/page/article/ArticleComment.vue";
+  export default {
+    name: "news-detail",
+    components: {
+      CommentItem
+    },
+    data() {
+      return {
+        oldID: 0,
+        news: {},
+        loading: true,
+        fetching: false,
+        org:'',
+        share:0,
+        comments: [],
+        pinnedCom: [],
 
-                fetchComing: false,
-                noMoreCom: false,
-                maxComId: 0
-            };
+        fetchComing: false,
+        noMoreCom: false,
+        maxComId: 0
+      };
+    },
+    computed: {
+      newsID() {
+        return this.$route.params.newsID;
+      },
+      uid() {
+        return this.$store.state.CURRENTUSER.id;
+      },
+      isMine() {
+        return this.news.user_id === this.uid;
+      },
+      liked: {
+        get() {
+          return !!this.news.has_like;
         },
-        computed: {
-            newsID() {
-                return this.$route.params.newsID;
-            },
-            uid() {
-                return this.$store.state.CURRENTUSER.id;
-            },
-            isMine() {
-                return this.news.user_id === this.uid;
-            },
-            liked: {
-                get() {
-                    return !!this.news.has_like;
-                },
-                set(val) {
-                    this.news.has_like = val;
-                }
-            },
-            likeCount: {
-                get() {
-                    return this.news.digg_count || 0;
-                },
-                set(val) {
-                    val && (this.news.digg_count = val);
-                }
-            },
-            commentCount: {
-                get() {
-                    return this.news.commentCount || 0;
-                },
-                set(val) {
-                    val > 0, (this.news.commentCount = val);
-                }
-            },
-            time() {
-                return this.news.created_at || "";
-            },
-            cate() {
-                const { category: { name = "未分类" } = {} } = this.news;
-                return name;
-            },
-            body() {
-                return md(this.news.content || "");
-            }
-        },
-        methods: {
-            fetchNews() {
-                if (this.fetching) return;
-                this.fetching = true;
-                this.$http
-                    .get(`/news/h5/${this.newsID}`)
-                    .then(({ data = {} }) => {
-                        this.news = data;
-                        this.oldID = this.newsID;
-                        this.getName();
-                        setTimeout(() => {
-                            this.loading = false;
-                            this.fetching = false;
-                        }, 300);
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        this.$router.back();
-                    });
-            },
-            getName(){
-                this.$http.get(`/users/${this.news.user_id}`).then(({ data = [] }) => {
-                    this.org = data.name ;
-                });
-            },
-
-            fetchNewsComments(after = 0) {
-                // GET /news/{news}/comments
-                if (this.fetchComing) return;
-                this.fetchComing = true;
-                this.$http
-                    .get(`/news/${this.newsID}/comments`, {
-                        params: {
-                            after
-                        }
-                    })
-                    .then(({ data: { pinneds = [], comments = [] } }) => {
-                        pinneds &&
-                        pinneds.length &&
-                        (this.pinnedCom = after ? [...this.pinneds, ...pinneds] : pinneds);
-                        comments && comments.length
-                            ? ((this.comments = after
-                            ? [...this.comments, ...comments]
-                            : comments),
-                                (this.maxComId = comments[comments.length - 1].id))
-                            : (this.noMoreCom = true);
-                        this.fetchComing = false;
-                    })
-                    .catch(() => {
-                        this.fetchComing = false;
-                    });
-            },
-        },
-        activated() {
-            if (this.newsID) {
-                this.newsID !== this.oldID
-                    ? this.fetchNews()
-                    : setTimeout(() => {
-                        this.loading = false;
-                    }, 200);
-            }
-        },
-        deactivated() {
-            this.loading = true;
-        },
-        created() {
-            this.share = this.$route.query.user_id;
-            this.fetchNewsComments();
+        set(val) {
+          this.news.has_like = val;
         }
-    };
+      },
+      likeCount: {
+        get() {
+          return this.news.digg_count || 0;
+        },
+        set(val) {
+          val && (this.news.digg_count = val);
+        }
+      },
+      commentCount: {
+        get() {
+          return this.news.commentCount || 0;
+        },
+        set(val) {
+          val > 0, (this.news.commentCount = val);
+        }
+      },
+      time() {
+        return this.news.created_at || "";
+      },
+      cate() {
+        const { category: { name = "未分类" } = {} } = this.news;
+        return name;
+      },
+      body() {
+        return md(this.news.content || "");
+      }
+    },
+    methods: {
+      fetchNews() {
+        if (this.fetching) return;
+        this.fetching = true;
+        this.$http
+          .get(`/news/h5/${this.newsID}`)
+          .then(({ data = {} }) => {
+            this.news = data;
+            this.oldID = this.newsID;
+            this.getName();
+            setTimeout(() => {
+              this.loading = false;
+              this.fetching = false;
+            }, 300);
+          })
+          .catch(err => {
+            console.log(err);
+            this.$router.back();
+          });
+      },
+      getName(){
+        this.$http.get(`/users/${this.news.user_id}`).then(({ data = [] }) => {
+          this.org = data.name ;
+        });
+      },
+
+      fetchNewsComments(after = 0) {
+        // GET /news/{news}/comments
+        if (this.fetchComing) return;
+        this.fetchComing = true;
+        this.$http
+          .get(`/news/${this.newsID}/comments`, {
+            params: {
+              after
+            }
+          })
+          .then(({ data: { pinneds = [], comments = [] } }) => {
+            pinneds &&
+            pinneds.length &&
+            (this.pinnedCom = after ? [...this.pinneds, ...pinneds] : pinneds);
+            comments && comments.length
+              ? ((this.comments = after
+              ? [...this.comments, ...comments]
+              : comments),
+                (this.maxComId = comments[comments.length - 1].id))
+              : (this.noMoreCom = true);
+            this.fetchComing = false;
+          })
+          .catch(() => {
+            this.fetchComing = false;
+          });
+      },
+    },
+    activated() {
+      if (this.newsID) {
+        this.newsID !== this.oldID
+          ? this.fetchNews()
+          : setTimeout(() => {
+            this.loading = false;
+          }, 200);
+      }
+    },
+    deactivated() {
+      this.loading = true;
+    },
+    created() {
+      this.share = this.$route.query.user_id;
+      this.fetchNewsComments();
+    }
+  };
 </script>

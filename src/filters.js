@@ -111,13 +111,13 @@ export const time2tips = date => {
 export const formatNum = (a = 0) => {
   return (
     a > 0 &&
-      (a > 99999999 && (a = Math.floor(a / 1e8) + "亿"),
-      a > 9999 &&
-        (a =
-          a > 99999999
-            ? Math.floor(a / 1e8) + "亿"
-            : Math.floor(a / 1e4) + "万")),
-    a
+    (a > 99999999 && (a = Math.floor(a / 1e8) + "亿"),
+    a > 9999 &&
+    (a =
+      a > 99999999
+        ? Math.floor(a / 1e8) + "亿"
+        : Math.floor(a / 1e4) + "万")),
+      a
   );
 };
 
