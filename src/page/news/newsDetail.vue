@@ -5,7 +5,7 @@
       <p>
         <span>{{ time | UTClocalTime }}</span>&nbsp;&nbsp;
         <span>{{ news.author }}</span>&nbsp;&nbsp;
-        <span class="org">{{ org }}</span>
+        <span class="org"><a :href="'http://www.tokenbook.cloud/tbm/invite/' + share ">{{ org }}</a></span>
       </p>
     </section>
     <div class="m-art-body" v-html='body'></div>
